@@ -1,0 +1,51 @@
+﻿@model DLL.Models.User
+
+@{
+    ViewData["Title"] = "Login";
+}
+<body class="bg-primary">
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header"><h3 class="text-center font-weight-light my-4">@ViewData["Title"]</h3></div>
+                                <div class="card-body">
+                                    <form asp-action="Login">
+                                        <div class="form-floating mb-3">
+                                            <input class="form-control" asp-for="Username" placeholder="Nhập tên đi Cưng" />
+                                            <label asp-for="Username">User Name</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            <input class="form-control" asp-for="Password" type="password" placeholder="Password" />
+                                            <label asp-for="Password">Password</label>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            <a class="small" asp-action="ForgotPassword">Forgot Password?</a>
+                                            <input type="submit" value="Login" class="btn btn-primary btn-block" />
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            @if (ViewData["ErroLogin"] != null)
+                                            {
+                                                <div class="alert alert-danger col-12">
+                                                    @ViewData["ErroLogin"]
+                                                </div>
+                                            }
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer text-center py-3">
+                                    <div class="small"><a asp-action="DangKy">Need an account? Sign up!</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+
+            

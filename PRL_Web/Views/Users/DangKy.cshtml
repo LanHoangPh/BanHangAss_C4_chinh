@@ -1,0 +1,72 @@
+﻿@model DLL.Models.User
+
+@{
+    ViewData["Title"] = "Đăng Ký";
+}
+
+<main>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                    <div class="card-header">
+                        <h3 class="text-center font-weight-light my-4">Create Account</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="DangKy" method="post">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3 mb-md-0">
+                                        <input class="form-control" asp-for="Username" type="text" placeholder="Nhập Tên UserNam" />
+                                        <label asp-for="Username">User Name</label>
+                                        <span asp-validation-for="Username" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3 mb-md-0">
+                                        <input class="form-control" asp-for="Password" type="password" placeholder="Enter your password" />
+                                        <label asp-for="Password">Password</label>
+                                        <span asp-validation-for="Password" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input class="form-control" asp-for="Email" type="email" placeholder="name@example.com" />
+                                <label asp-for="Email">Email address</label>
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input class="form-control" asp-for="FullName" type="text" placeholder="FullName" />
+                                <label asp-for="FullName">FullName</label>
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3 mb-md-0">
+                                        <input class="form-control" asp-for="Phone" type="text" placeholder="Enter your phone number" />
+                                        <label asp-for="Phone">Phone</label>
+                                        <span asp-validation-for="Phone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 mb-0">
+                                <div class="d-grid">
+                                    <input type="submit" value="DangKy" class="btn btn-primary btn-block" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center py-3">
+                        <div class="small"><a asp-action="Login">Have an account? Go to login</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

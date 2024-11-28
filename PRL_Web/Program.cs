@@ -1,4 +1,4 @@
-using DLL.Models;
+﻿using DLL.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace PRL_Web
@@ -12,7 +12,16 @@ namespace PRL_Web
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<BanHangDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                       options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(30); // Thời gian tồn tại của session
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             var app = builder.Build();
 
@@ -26,6 +35,7 @@ namespace PRL_Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession();
 
             app.UseRouting();
 
@@ -33,7 +43,7 @@ namespace PRL_Web
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Users}/{action=Login}/{id?}");
 
             app.Run();
         }

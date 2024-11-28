@@ -1,3 +1,18 @@
-﻿@{
-    Layout = "_Layout";
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var userRole = HttpContextAccessor.HttpContext.Session.GetInt32("UserRole");
+
+    if (userRole == 1)
+    {
+        Layout = "_AdminLayout"; 
+    }
+    else if (userRole == 2) 
+    {
+        Layout = "_CustomerLayout"; 
+    }
+    else
+    {
+        Layout = "_CustomerNoLG"; 
+    }
 }

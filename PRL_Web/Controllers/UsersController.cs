@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DLL.Models;
+using System.Collections;
+using Microsoft.AspNetCore.Http;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PRL_Web.Controllers
 {
@@ -17,6 +20,99 @@ namespace PRL_Web.Controllers
         {
             _context = context;
         }
+
+
+        public IActionResult ForgotPassword() => View();
+
+        //public IActionResult ForgotPassword(string email)
+        //{
+        //    var user = _context.Users.FirstOrDefault(x => x.Email == email);
+        //    if (user == null) 
+        //    {
+        //        ViewData["erroemail"] = "Khong tim thay email nay";
+
+        //    }
+        //    else
+        //    {
+        //        return RedirectToAction(nameof(ResetPassword));
+        //    }
+        //    return View();
+        //}
+
+        //public IActionResult ResetPassword() => View();
+
+        //[HttpPost, ActionName("ResetPassword")]
+        //public IActionResult ResetPasswordConfirmation(string password)
+        //{
+        //    return View();
+        //}
+
+        public IActionResult LogOut()
+        {
+            return RedirectToAction("Login");
+        }
+
+        public IActionResult DangKy() => View();
+
+        [HttpPost]
+        public IActionResult DangKy(User user)
+        {
+            try
+            {
+                user.UserId = Guid.NewGuid(); 
+                user.Role = 2;
+                user.ThoiGianTao = DateTime.Now;
+                _context.Users.Add(user);
+                Cart cart = new Cart()
+                {
+                    UserId = user.UserId,
+                    UserName = user.Username,
+                    NgayTao = DateTime.Now,
+                };
+                _context.Carts.Add(cart); 
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Login));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Lỗi xảy ra khi lưu dữ liệu: {ex.Message}");
+            }
+        }
+
+
+
+
+        public IActionResult Login() 
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public IActionResult Login(string username, string password)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Username == username && x.Password == password);
+            if (user == null)
+            {
+                ViewData["ErroLogin"] = "Không tìm thấy tài khoản này";
+            }
+            else
+            {
+                // Lưu thông tin vào session
+                HttpContext.Session.SetString("UserName", user.Username);
+                HttpContext.Session.SetInt32("UserRole", user.Role);
+
+                TempData["UserName"] = user.Username;
+
+                // Chuyển hướng đến trang chính
+                return RedirectToAction("Index");
+            }
+
+            return View();
+        }
+
+
 
         // GET: Users
         public async Task<IActionResult> Index()
@@ -48,16 +144,14 @@ namespace PRL_Web.Controllers
             return View();
         }
 
-        // POST: Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,Username,Password,FullName,Email,Phone,Role,ThoiGianTao")] User user)
+        public async Task<IActionResult> Create([Bind("UserId,Username,Password,FullName,Email,Phone,Role")] User user)
         {
             if (ModelState.IsValid)
             {
                 user.UserId = Guid.NewGuid();
+                user.ThoiGianTao = DateTime.Now;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

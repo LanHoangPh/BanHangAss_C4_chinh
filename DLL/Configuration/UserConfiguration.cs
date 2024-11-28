@@ -16,6 +16,8 @@ namespace DLL.Configuration
             builder.HasOne(u => u.Cart)
                 .WithOne(c => c.User)
                 .HasForeignKey<Cart>(c => c.UserId);
+
+
             builder.HasMany<Order>(u => u.Order)
                 .WithOne(o => o.User)
                 .HasForeignKey(o => o.UserId);
