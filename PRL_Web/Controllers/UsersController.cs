@@ -9,6 +9,8 @@ using DLL.Models;
 using System.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NuGet.Common;
+using Microsoft.CodeAnalysis.Scripting;
 
 namespace PRL_Web.Controllers
 {
@@ -24,28 +26,69 @@ namespace PRL_Web.Controllers
 
         public IActionResult ForgotPassword() => View();
 
-        //public IActionResult ForgotPassword(string email)
-        //{
-        //    var user = _context.Users.FirstOrDefault(x => x.Email == email);
-        //    if (user == null) 
-        //    {
-        //        ViewData["erroemail"] = "Khong tim thay email nay";
+        [HttpPost]
+        public IActionResult ForgotPassword(string email)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Email == email);
+            if (user == null)
+            {
+                ViewData["erroemail"] = "Không tìm thấy email này.";
+                return View();
+            }
+            else
+            {
+                var token = Guid.NewGuid().ToString();
 
-        //    }
-        //    else
-        //    {
-        //        return RedirectToAction(nameof(ResetPassword));
-        //    }
-        //    return View();
-        //}
+                // Lưu token vào database (bạn cần thêm cột "ResetToken" và "ResetTokenExpiry" trong bảng User)
+                user.ResetToken = token;
+                user.ResetTokenExpiry = DateTime.Now.AddHours(1); // Token hết hạn sau 1 giờ
+                _context.SaveChanges();
 
-        //public IActionResult ResetPassword() => View();
+                ViewData["successMessage"] = "Email đặt lại mật khẩu đã được gửi!";
+                return RedirectToAction(nameof(ResetPassword));
+            }
+            return View();
+        }
 
-        //[HttpPost, ActionName("ResetPassword")]
-        //public IActionResult ResetPasswordConfirmation(string password)
-        //{
-        //    return View();
-        //}
+        public IActionResult ResetPassword(string token)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.ResetToken == token && u.ResetTokenExpiry > DateTime.Now);
+            if (user == null)
+            {
+                ViewData["error"] = "Liên kết không hợp lệ hoặc đã hết hạn.";
+                return RedirectToAction(nameof(ForgotPassword));
+            }
+
+            // Truyền token qua View để xử lý tiếp
+            ViewBag.Token = token;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPasswordConfirmation(string token, string newPassword, string confirmPassword)
+        {
+            if (newPassword != confirmPassword)
+            {
+                ViewData["error"] = "Mật khẩu xác nhận không khớp.";
+                return RedirectToAction(nameof(ResetPassword), new { token });
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.ResetToken == token && u.ResetTokenExpiry > DateTime.Now);
+            if (user == null)
+            {
+                ViewData["error"] = "Liên kết không hợp lệ hoặc đã hết hạn.";
+                return RedirectToAction(nameof(ForgotPassword));
+            }
+
+            // Cập nhật mật khẩu mới
+            user.Password =newPassword; // Hash mật khẩu trước khi lưu
+            user.ResetToken = null; // Xóa token sau khi dùng
+            user.ResetTokenExpiry = null;
+            _context.SaveChanges();
+
+            ViewData["successMessage"] = "Mật khẩu đã được thay đổi thành công!";
+            return RedirectToAction("Login"); // Chuyển hướng đến trang đăng nhập
+        }
 
         public IActionResult LogOut()
         {
@@ -104,9 +147,15 @@ namespace PRL_Web.Controllers
                 HttpContext.Session.SetInt32("UserRole", user.Role);
 
                 TempData["UserName"] = user.Username;
-
-                // Chuyển hướng đến trang chính
-                return RedirectToAction("Index");
+                if(user.Role == 2)
+                {
+                    return RedirectToAction("IndexCus", "Products");
+                }
+                else 
+                {
+                    return RedirectToAction("Index");
+                }    
+                
             }
 
             return View();
@@ -159,7 +208,6 @@ namespace PRL_Web.Controllers
             return View(user);
         }
 
-        // GET: Users/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -175,9 +223,6 @@ namespace PRL_Web.Controllers
             return View(user);
         }
 
-        // POST: Users/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("UserId,Username,Password,FullName,Email,Phone,Role,ThoiGianTao")] User user)
@@ -191,6 +236,7 @@ namespace PRL_Web.Controllers
             {
                 try
                 {
+                    user.ThoiGianTao = DateTime.Now;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -210,7 +256,6 @@ namespace PRL_Web.Controllers
             return View(user);
         }
 
-        // GET: Users/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -228,7 +273,6 @@ namespace PRL_Web.Controllers
             return View(user);
         }
 
-        // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)

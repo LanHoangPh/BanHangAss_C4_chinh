@@ -28,16 +28,20 @@ namespace DLL.Models
         [MaxLength(15)]
         public string Phone { get; set; }
 
-        public int Role { get; set; } 
+        public int Role { get; set; }
+
+        // Cột hỗ trợ tính năng Quên mật khẩu
+        public string? ResetToken { get; set; } // Token để reset mật khẩu
+        public DateTime? ResetTokenExpiry { get; set; } // Thời hạn sử dụng token
 
         public DateTime ThoiGianTao { get; set; } = DateTime.Now;
 
         // Navigation Properties
         // Mối quan hệ  1 - 1 với Customer
-        public Customer? Customer { get; set; }
+        public virtual Customer? Customer { get; set; }
         // Mối quan hệ  1 - 1 với Cart
-        public Cart? Cart { get; set; }
+        public virtual Cart? Cart { get; set; }
         // Mối quan hệ  1 - n với Order
-        public ICollection<Order>? Order { get; set; }
+        public virtual ICollection<Order>? Order { get; set; } = new List<Order>();
     }
 }

@@ -18,11 +18,11 @@ namespace DLL.Models
 
         public string UserName { get; set; }
         [ForeignKey("UserId")]
-        public User? User { get; set; }
+        public virtual User? User { get; set; }
 
         public DateTime NgayTao { get; set; } = DateTime.Now;
 
         // Mối quan hệ  1 - n với CartDetails
-        public ICollection<CartDetail> CartDetails { get; set; }
+        public virtual ICollection<CartDetail> CartDetails { get; set; }
     }
 }

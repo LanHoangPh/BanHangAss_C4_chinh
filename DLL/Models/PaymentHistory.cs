@@ -20,7 +20,7 @@ namespace DLL.Models
 
         public Guid? PaymentMethodId { get; set; }
         [ForeignKey("PaymentMethodId")]
-        public PaymentMethod? PaymentMethod { get; set; }
+        public virtual PaymentMethod? PaymentMethod { get; set; }
 
         public decimal TongTien { get; set; }
 

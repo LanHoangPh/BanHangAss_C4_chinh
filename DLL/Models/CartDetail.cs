@@ -16,12 +16,12 @@ namespace DLL.Models
         [Required]
         public Guid? CartId { get; set; }
         [ForeignKey("CartId")]
-        public Cart? Cart { get; set; }
+        public virtual Cart? Cart { get; set; }
 
         [Required]
         public Guid? ProductId { get; set; }
         [ForeignKey("ProductId")]
-        public Product? Product { get; set; }
+        public virtual Product? Product { get; set; }
 
         [Required]
         public int SoLuong { get; set; }

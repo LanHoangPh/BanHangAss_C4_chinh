@@ -51,17 +51,6 @@
                             Dashboard
                         </a>
                         <div class="sb-sidenav-menu-heading">Interface</div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            Layouts
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="~/template/layout-static.html">Static Navigation</a>
-                                <a class="nav-link" href="~/template/layout-sidenav-light.html">Light Sidenav</a>
-                            </nav>
-                        </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                             <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
                             Pages
@@ -77,12 +66,24 @@
                                     <nav class="sb-sidenav-menu-nested nav">
                                         <a class="nav-link" asp-controller="Users" asp-action="Login">Login</a>
                                         <a class="nav-link" asp-controller="Users" asp-action="DangKy">Đăng Ký</a>
-                                        <a class="nav-link" href="password.html">Forgot Password</a>
+                                        <a class="nav-link" asp-controller="Users" asp-action="ForgotPassword">Forgot Password</a>
+                                    </nav>
+                                </div>
+                                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseManager" aria-expanded="false" aria-controls="pagesCollapseError">
+                                    Manager
+                                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                </a>
+                                <div class="collapse" id="pagesCollapseManager" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                                    <nav class="sb-sidenav-menu-nested nav">
                                         <a class="nav-link" asp-controller="Users" asp-action="Index">User</a>
                                         <a class="nav-link" asp-controller="PaymentMethods" asp-action="Index">Phương Thức Thanh Toán</a>
-                                        <a class="nav-link" asp-controller="Home" asp-action="Index">Forgot Password</a>
-                                        <a class="nav-link" asp-controller="User" asp-action="Index">Forgot Password</a>
-                                        
+                                        <a class="nav-link" asp-controller="Carts" asp-action="Index">Gio Hang</a>
+                                        <a class="nav-link" asp-controller="Customers" asp-action="Index">Khach Hang</a>
+                                        <a class="nav-link" asp-controller="Products" asp-action="Index">San Pham</a>
+                                        <a class="nav-link" asp-controller="Customers" asp-action="Index">Gio Hang</a>
+                                        <a class="nav-link" asp-controller="Customers" asp-action="Index">Gio Hang</a>
+                                        <a class="nav-link" asp-controller="Customers" asp-action="Index">Gio Hang</a>
+                                        <a class="nav-link" asp-controller="Customers" asp-action="Index">Gio Hang</a>
                                     </nav>
                                 </div>
                                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">

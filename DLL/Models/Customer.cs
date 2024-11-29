@@ -16,7 +16,7 @@ namespace DLL.Models
         [Required]
         public Guid UserId { get; set; }
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public virtual User? User { get; set; }
 
         [MaxLength(255)]
         public string DiaChi { get; set; }

@@ -16,7 +16,7 @@ namespace DLL.Models
         [Required]
         public Guid? UserId { get; set; }
         [ForeignKey("UserId")]
-        public User? User { get; set; }
+        public virtual User? User { get; set; }
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
 
@@ -28,8 +28,8 @@ namespace DLL.Models
 
         // Navigation Properties
         // Mối quan hệ  1 - n với OrderDetails
-        public ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
         // Mối quan hệ  1 - 1 với PaymentHistory
-        public PaymentHistory? PaymentHistory { get; set; }
+        public virtual PaymentHistory? PaymentHistory { get; set; }
     }
 }

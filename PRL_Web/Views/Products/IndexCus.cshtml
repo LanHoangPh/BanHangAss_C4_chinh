@@ -1,0 +1,100 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<DLL.Models.Product>
+
+@{
+    ViewData["Title"] = "IndexCus";
+}
+<div class="container mt-5">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-200 shadow-sm">
+                    <img src="@item.ImageUrl" class="card-img-top" alt="@item.TenSp" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">@item.TenSp</h5>
+                        <p class="card-text text-muted">@item.MoTa</p>
+                        <p class="card-text text-danger fw-bold">@item.Gia.ToString("C")</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-action="AddToCart" asp-route-id="@item.ProductId" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-shopping-cart"></i> Add To Cart
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-info-circle"></i> More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="pagination-container">
+        @Html.PagedListPager(Model, page => Url.Action("IndexCus", new { page }))
+    </div>
+</div>
+
+<style>
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+    }
+
+    .card-footer {
+        background-color: #f8f9fa;
+    }
+
+    .btn-outline-primary:hover, .btn-outline-secondary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination {
+        display: flex;
+        list-style-type: none;
+        padding: 0;
+    }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+            .pagination a:hover {
+                background-color: #007bff;
+                color: #fff;
+            }
+
+        .pagination .active span {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+            cursor: default;
+        }
+
+        .pagination .disabled span {
+            color: #ddd;
+            border-color: #ddd;
+            cursor: not-allowed;
+        }
+
+</style>

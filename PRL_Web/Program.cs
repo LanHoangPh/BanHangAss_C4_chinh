@@ -18,7 +18,7 @@ namespace PRL_Web
 
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromSeconds(30); // Thời gian tồn tại của session
+                options.IdleTimeout = TimeSpan.FromMinutes(1); // Thời gian tồn tại của session
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
@@ -43,7 +43,7 @@ namespace PRL_Web
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Users}/{action=Login}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }
