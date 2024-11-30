@@ -14,10 +14,10 @@
                     </div>
                     <div class="card-body">
                         <form asp-action="DangKy" method="post">
-                            @if (TempData["ErroUserPRo"] != null)
+                            @if (TempData["ErroPro"] != null)
                             {
                                 <div class="alert alert-danger col-12">
-                                    @TempData["ErroUserPRo"]
+                                    @TempData["ErroPro"]
                                 </div>
                             }
                             <div class="row mb-3">

@@ -9,23 +9,23 @@ using DLL.Models;
 
 namespace PRL_Web.Controllers
 {
-    public class CartsController : Controller
+    public class OrdersController : Controller
     {
         private readonly BanHangDbContext _context;
 
-        public CartsController(BanHangDbContext context)
+        public OrdersController(BanHangDbContext context)
         {
             _context = context;
         }
 
-        // GET: Carts
-        public IActionResult Index()
+        // GET: Orders
+        public async Task<IActionResult> Index()
         {
-            var banHangDbContext = _context.Carts.ToList();
-            return View(banHangDbContext);
+            var banHangDbContext = _context.Orders.Include(o => o.User);
+            return View(await banHangDbContext.ToListAsync());
         }
 
-        // GET: Carts/Details/5
+        // GET: Orders/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -33,43 +33,43 @@ namespace PRL_Web.Controllers
                 return NotFound();
             }
 
-            var cart = await _context.Carts
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.CartId == id);
-            if (cart == null)
+            var order = await _context.Orders
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(m => m.OrderId == id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return View(cart);
+            return View(order);
         }
 
-        // GET: Carts/Create
+        // GET: Orders/Create
         public IActionResult Create()
         {
             ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
             return View();
         }
 
-        // POST: Carts/Create
+        // POST: Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CartId,UserId,UserName,NgayTao")] Cart cart)
+        public async Task<IActionResult> Create([Bind("OrderId,UserId,OrderDate,TongTien,TrangThai")] Order order)
         {
             if (ModelState.IsValid)
             {
-                cart.CartId = Guid.NewGuid();
-                _context.Add(cart);
+                order.OrderId = Guid.NewGuid();
+                _context.Add(order);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", cart.UserId);
-            return View(cart);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
+            return View(order);
         }
 
-        // GET: Carts/Edit/5
+        // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -77,23 +77,23 @@ namespace PRL_Web.Controllers
                 return NotFound();
             }
 
-            var cart = await _context.Carts.FindAsync(id);
-            if (cart == null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", cart.UserId);
-            return View(cart);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
+            return View(order);
         }
 
-        // POST: Carts/Edit/5
+        // POST: Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("CartId,UserId,UserName,NgayTao")] Cart cart)
+        public async Task<IActionResult> Edit(Guid id, [Bind("OrderId,UserId,OrderDate,TongTien,TrangThai")] Order order)
         {
-            if (id != cart.CartId)
+            if (id != order.OrderId)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace PRL_Web.Controllers
             {
                 try
                 {
-                    _context.Update(cart);
+                    _context.Update(order);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CartExists(cart.CartId))
+                    if (!OrderExists(order.OrderId))
                     {
                         return NotFound();
                     }
@@ -118,11 +118,11 @@ namespace PRL_Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", cart.UserId);
-            return View(cart);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
+            return View(order);
         }
 
-        // GET: Carts/Delete/5
+        // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -130,35 +130,35 @@ namespace PRL_Web.Controllers
                 return NotFound();
             }
 
-            var cart = await _context.Carts
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.CartId == id);
-            if (cart == null)
+            var order = await _context.Orders
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(m => m.OrderId == id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return View(cart);
+            return View(order);
         }
 
-        // POST: Carts/Delete/5
+        // POST: Orders/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var cart = await _context.Carts.FindAsync(id);
-            if (cart != null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order != null)
             {
-                _context.Carts.Remove(cart);
+                _context.Orders.Remove(order);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CartExists(Guid id)
+        private bool OrderExists(Guid id)
         {
-            return _context.Carts.Any(e => e.CartId == id);
+            return _context.Orders.Any(e => e.OrderId == id);
         }
     }
 }

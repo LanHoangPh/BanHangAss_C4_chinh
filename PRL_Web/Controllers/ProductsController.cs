@@ -41,7 +41,7 @@ namespace PRL_Web.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
             if (user == null)
             {
-                TempData["ErroUserPRo"] = "Không Tìm Thấy Bạn bạn cần đăng Ký cho tôi";
+                TempData["ErroPro"] = "Không Tìm Thấy Bạn bạn cần đăng Ký cho tôi";
                 return RedirectToAction("DangKy", "User"); 
             }
 
