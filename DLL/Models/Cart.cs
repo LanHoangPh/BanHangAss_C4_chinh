@@ -23,6 +23,6 @@ namespace DLL.Models
         public DateTime NgayTao { get; set; } = DateTime.Now;
 
         // Mối quan hệ  1 - n với CartDetails
-        public virtual ICollection<CartDetail> CartDetails { get; set; }
+        public virtual ICollection<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
     }
 }

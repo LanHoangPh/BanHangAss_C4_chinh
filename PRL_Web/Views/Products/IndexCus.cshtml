@@ -5,7 +5,32 @@
 @{
     ViewData["Title"] = "IndexCus";
 }
+<div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="~/images/slide1.png" class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+            <img src="~/images/slide2.png"  class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+            <img src="~/images/slide3.png"  class="d-block w-100" alt="...">
+        </div>
+    </div>
+</div>
 <div class="container mt-5">
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger col-12">
+            @ViewData["ErrorMessage"]
+        </div>
+    }
+    @if (TempData["Messeger"] != null)
+    {
+        <div class="alert alert-success col-12">
+            @TempData["Messeger"]
+        </div>
+    }
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var item in Model)
         {
@@ -18,9 +43,12 @@
                         <p class="card-text text-danger fw-bold">@item.Gia.ToString("C")</p>
                     </div>
                     <div class="card-footer d-flex justify-content-between">
-                        <a asp-action="AddToCart" asp-route-id="@item.ProductId" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-shopping-cart"></i> Add To Cart
-                        </a>
+                        <form asp-action="AddToCart" method="post">
+                            <input type="hidden" name="productid" value="@item.ProductId" />
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-shopping-cart"></i> Add To Cart
+                            </button>
+                        </form>
                         <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-info-circle"></i> More
                         </a>

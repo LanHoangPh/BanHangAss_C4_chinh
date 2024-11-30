@@ -28,7 +28,7 @@ namespace DLL.Models
 
         // Navigation Properties
         // Mối quan hệ  1 - n với OrderDetails
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>(); 
         // Mối quan hệ  1 - 1 với PaymentHistory
         public virtual PaymentHistory? PaymentHistory { get; set; }
     }

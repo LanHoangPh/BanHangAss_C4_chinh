@@ -21,8 +21,8 @@ namespace PRL_Web.Controllers
         // GET: Carts
         public async Task<IActionResult> Index()
         {
-            var banHangDbContext = _context.Carts.Include(c => c.User);
-            return View(await banHangDbContext.ToListAsync());
+            var banHangDbContext = _context.Carts.ToList();
+            return View(banHangDbContext);
         }
 
         // GET: Carts/Details/5

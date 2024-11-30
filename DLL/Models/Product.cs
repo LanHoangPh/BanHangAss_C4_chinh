@@ -29,8 +29,8 @@ namespace DLL.Models
 
         // Navigation Properties
         // Mối quan hệ  1 - n với CartDetails
-        public virtual ICollection<CartDetail> CartDetails { get; set; }
+        public virtual ICollection<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
         // Mối quan hệ  1 - n với OrderDetails
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

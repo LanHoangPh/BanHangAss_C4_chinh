@@ -18,7 +18,7 @@ namespace PRL_Web
 
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(1); // Thời gian tồn tại của session
+                options.IdleTimeout = TimeSpan.FromMinutes(3); // Thời gian tồn tại của session
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });

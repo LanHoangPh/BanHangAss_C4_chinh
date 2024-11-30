@@ -1,6 +1,7 @@
 ﻿using DLL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList.Extensions;
 
@@ -15,6 +16,84 @@ namespace PRL_Web.Controllers
         {
             _context = context;
             _environment = environment;
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(Guid productid)
+        {
+            var product = await _context.Products.FindAsync(productid);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            if (product.SoLuong <= 0)
+            {
+                ViewData["ErrorMessage"] = "Sản phẩm này đã hết hàng.";
+                return RedirectToAction("IndexCus", "Products");
+            }
+
+            var userName = HttpContext.Session.GetString("UserName");
+            if (userName == null)
+            {
+                TempData["ErroPro"] = " Đăng Nhập Đi BẠn ơi";
+                return RedirectToAction("Login", "Users"); 
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            if (user == null)
+            {
+                TempData["ErroUserPRo"] = "Không Tìm Thấy Bạn bạn cần đăng Ký cho tôi";
+                return RedirectToAction("DangKy", "User"); 
+            }
+
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(c => c.UserId == user.UserId); // Giỏ hàng của ngày hiện tại, bạn có thể thay đổi nếu cần
+
+            if (cart == null)
+            {
+                cart = new Cart
+                {
+                    CartId = Guid.NewGuid(),
+                    UserId = user.UserId,
+                    UserName = user.Username,
+                    NgayTao = DateTime.Now,
+                };
+                _context.Carts.Add(cart);
+                await _context.SaveChangesAsync();
+            }
+
+            var cartDetail = await _context.CartDetails
+                .FirstOrDefaultAsync(cd => cd.CartId == cart.CartId && cd.ProductId == productid);
+
+            if (cartDetail == null)
+            {
+                cartDetail = new CartDetail
+                {
+                    CartDetailId = Guid.NewGuid(),
+                    CartId = cart.CartId,
+                    ProductId = productid,
+                    SoLuong = 1 
+                };
+                _context.CartDetails.Add(cartDetail);
+            }
+            else
+            {
+                if (cartDetail.SoLuong + 1 > product.SoLuong)
+                {
+                    ViewData["ErrorMessage"] = "Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho.";
+                    return RedirectToAction("Index", "Cart"); 
+                }
+
+                cartDetail.SoLuong += 1;
+                _context.CartDetails.Update(cartDetail);
+            }
+
+            product.SoLuong -= 1;
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+            TempData["Messeger"] = $" Thêm sản phẩm{product.ProductId} vào giỏ hàng thàng công";
+
+            return RedirectToAction("IndexCus");
+   
         }
 
         public IActionResult IndexCus(int? page)

@@ -18,6 +18,6 @@ namespace DLL.Models
         [MaxLength(255)]
         public string MoTa { get; set; }
         // Mối quan hệ  1 - n với PaymentHistories
-        public virtual ICollection<PaymentHistory> PaymentHistories { get; set; }
+        public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
     }
 }
