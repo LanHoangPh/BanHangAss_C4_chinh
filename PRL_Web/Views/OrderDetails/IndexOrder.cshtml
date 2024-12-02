@@ -30,7 +30,7 @@ else
                 <tr>
                     <td>@order.OrderId</td>
                     <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.TongTien.ToString("C")</td>
+                    <td>@String.Format("{0:C}", order.TongTien)</td>
                     <td>
                         @{
                             string trangThaiText = order.TrangThai switch
@@ -47,6 +47,17 @@ else
                         <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#details-@order.OrderId">
                             Xem chi tiết
                         </button>
+                    </td>
+                    <td>
+                        <form asp-controller="OrderDetails" asp-action="Refund" method="post" style="display:inline-block;">
+                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                            <button type="submit" class="btn btn-warning btn-sm">Refund</button>
+                        </form>
+
+                        <form asp-controller="OrderDetails" asp-action="GoToCheckout" method="post" style="display:inline-block;">
+                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                            <button type="submit" class="btn btn-success btn-sm">Go To Checkout</button>
+                        </form>
                     </td>
                 </tr>
                 <tr class="collapse" id="details-@order.OrderId">

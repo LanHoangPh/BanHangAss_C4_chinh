@@ -1,0 +1,36 @@
+﻿@model PRL_Web.ViewModel.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Thanh toán hóa đơn";
+}
+
+<h1>Thanh toán hóa đơn</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Hóa đơn: @Model.Order.OrderId</h5>
+        <p>Ngày tạo: @Model.Order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+        <p>Tổng tiền: @String.Format("{0:C}", Model.Order.TongTien)</p>
+    </div>
+</div>
+
+<hr />
+
+<form asp-controller="OrderDetails" asp-action="Checkout" method="post">
+    <input type="hidden" name="orderId" value="@Model.Order.OrderId" />
+    <div class="mb-3">
+        <label for="paymentMethod" class="form-label">Phương thức thanh toán:</label>
+        <select id="paymentMethod" name="paymentMethodId" class="form-select">
+            @foreach (var method in Model.PaymentMethods)
+            {
+                    <option value="@method.PaymentMethodId">@method.TenPhuongThuc</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="soTienThanhToan" class="form-label">Số tiền thanh toán:</label>
+        <input type="number" id="soTienThanhToan" name="soTienThanhToan" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-success">Thanh toán</button>
+</form>
+<a asp-controller="OrdersDetails" asp-action="IndexOrder"></a>

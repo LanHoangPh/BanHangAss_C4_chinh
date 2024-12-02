@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DLL.Models;
+using PRL_Web.ViewModel;
 
 namespace PRL_Web.Controllers
 {
@@ -16,6 +17,99 @@ namespace PRL_Web.Controllers
         public OrderDetailsController(BanHangDbContext context)
         {
             _context = context;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout(Guid orderId, Guid paymentMethodId, decimal soTienThanhToan)
+        {
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null || order.TrangThai != 1)
+            {
+                TempData["Error"] = "Hóa đơn không hợp lệ!";
+                return RedirectToAction("IndexOrder");
+            }
+
+            if (soTienThanhToan < order.TongTien)
+            {
+                TempData["Error"] = "Số tiền thanh toán không đủ!";
+                return RedirectToAction("GoToCheckout", new { orderId });
+            }
+
+            // Tạo lịch sử thanh toán
+            var paymentHistory = new PaymentHistory
+            {
+                PaymentId = Guid.NewGuid(),
+                OrderId = order.OrderId,
+                PaymentMethodId = paymentMethodId,
+                TongTien = soTienThanhToan,
+                ThoiGianTT = DateTime.Now,
+                Status = 1,
+            };
+
+            order.TrangThai = 2; 
+            _context.PaymentHistories.Add(paymentHistory);
+            _context.Orders.Update(order);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Thanh toán thành công!";
+            return RedirectToAction("IndexOrder");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Refund(Guid orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null || order.TrangThai != 1)
+            {
+                TempData["Error"] = "Không thể hoàn trả hóa đơn này.";
+                return RedirectToAction("IndexOrder");
+            }
+
+            foreach (var detail in order.OrderDetails)
+            {
+                var product = await _context.Products.FindAsync(detail.ProductId);
+                if (product != null)
+                {
+                    product.SoLuong += detail.SoLuong;
+                    _context.Products.Update(product);
+                }
+            }
+
+            _context.OrderDetails.RemoveRange(order.OrderDetails);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Hóa đơn đã được hoàn trả thành công!";
+            return RedirectToAction("IndexOrder");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GoToCheckout(Guid orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null || order.TrangThai != 1)
+            {
+                TempData["Error"] = "Hóa đơn không hợp lệ!";
+                return RedirectToAction("IndexOrder");
+            }
+
+            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+
+            var viewModel = new CheckoutViewModel
+            {
+                Order = order,
+                PaymentMethods = paymentMethods
+            };
+
+            return View(viewModel);
         }
 
         public async Task<IActionResult> IndexOrder()
