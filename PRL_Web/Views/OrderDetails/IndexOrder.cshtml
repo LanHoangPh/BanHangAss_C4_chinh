@@ -1,0 +1,82 @@
+﻿@model IEnumerable<DLL.Models.Order>
+
+@{
+    ViewData["Title"] = "Danh sách hóa đơn";
+}
+
+<h1>Danh sách hóa đơn của bạn</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning" role="alert">
+        Hiện không có hóa đơn nào đang chờ xử lý.
+    </div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã hóa đơn</th>
+                <th>Ngày tạo</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Chi tiết</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.TongTien.ToString("C")</td>
+                    <td>
+                        @{
+                            string trangThaiText = order.TrangThai switch
+                            {
+                                1 => "Đang xử lý",
+                                2 => "Hoàn thành",
+                                3 => "Đã hủy",
+                                _ => "Không xác định"
+                            };
+                        }
+                        @trangThaiText
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#details-@order.OrderId">
+                            Xem chi tiết
+                        </button>
+                    </td>
+                </tr>
+                <tr class="collapse" id="details-@order.OrderId">
+                    <td colspan="5">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Hình Ảnh</th>
+                                    <th>Giá sản phẩm</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detail in order.OrderDetails)
+                                {
+                                    <tr>
+                                        <td>@detail.Product.TenSp</td>
+                                        <td>@detail.SoLuong</td>
+                                        <td><img src="@detail.Product.ImageUrl" alt="Image" style="width:100px;height:auto;" /></td>
+                                        <td>@String.Format("{0:C}", detail.GiaSanPham )</td>
+                                        <td>@String.Format("{0:C}", detail.SoLuong * detail.GiaSanPham)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

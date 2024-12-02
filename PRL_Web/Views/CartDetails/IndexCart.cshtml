@@ -1,0 +1,68 @@
+﻿@model IEnumerable<DLL.Models.CartDetail>
+
+<div class="container mt-5">
+    <h2 class="text-center">Giỏ hàng của bạn</h2>
+    @if (TempData["Messeger"] != null)
+    {
+        <div class="alert alert-success col-12">
+            @TempData["Messeger"]
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <p class="text-center">Giỏ hàng của bạn đang trống.</p>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Hình Ảnh</th>
+                    <th>Số lượng</th>
+                    <th>Tổng</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Product?.TenSp</td>
+                        <td>@String.Format("{0:C}", item.Product?.Gia)</td>
+                        <td> <img src="@item.Product.ImageUrl" alt="Image" style="width:100px;height:auto;" /> </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <form asp-action="UpdateQuantity" asp-controller="CartDetails" method="post" class="me-2">
+                                    <input type="hidden" name="cartDetailId" value="@item.CartDetailId" />
+                                    <button type="submit" name="action" value="giam" class="btn btn-sm btn-outline-secondary">-</button>
+                                </form>
+
+                                <span class="mx-2">@item.SoLuong</span>
+
+                                <form asp-action="UpdateQuantity" asp-controller="CartDetails" method="post" class="ms-2">
+                                    <input type="hidden" name="cartDetailId" value="@item.CartDetailId" />
+                                    <button type="submit" name="action" value="tang" class="btn btn-sm btn-outline-secondary">+</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td>@String.Format("{0:C}", item.SoLuong * item.Product?.Gia)</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <form asp-action="BuyToCart" asp-controller="CartDetails" method="post">
+                                    <input type="hidden" name="cartDetailId" value="@item.CartDetailId" />
+                                    <button type="submit" class="btn btn-success btn-sm">Mua hàng</button>
+                                </form>
+                                <form asp-action="DeleteItem" asp-controller="CartDetails" method="post">
+                                    <input type="hidden" name="cartDetailId" value="@item.CartDetailId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

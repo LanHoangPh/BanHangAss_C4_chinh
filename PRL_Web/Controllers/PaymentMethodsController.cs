@@ -18,13 +18,11 @@ namespace PRL_Web.Controllers
             _context = context;
         }
 
-        // GET: PaymentMethods
         public async Task<IActionResult> Index()
         {
             return View(await _context.PaymentMethods.ToListAsync());
         }
 
-        // GET: PaymentMethods/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -42,20 +40,16 @@ namespace PRL_Web.Controllers
             return View(paymentMethod);
         }
 
-        // GET: PaymentMethods/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: PaymentMethods/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PaymentMethodId,TenPhuongThuc,MoTa")] PaymentMethod paymentMethod)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 paymentMethod.PaymentMethodId = Guid.NewGuid();
                 _context.Add(paymentMethod);
@@ -65,7 +59,6 @@ namespace PRL_Web.Controllers
             return View(paymentMethod);
         }
 
-        // GET: PaymentMethods/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -81,9 +74,6 @@ namespace PRL_Web.Controllers
             return View(paymentMethod);
         }
 
-        // POST: PaymentMethods/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("PaymentMethodId,TenPhuongThuc,MoTa")] PaymentMethod paymentMethod)
@@ -93,7 +83,7 @@ namespace PRL_Web.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 try
                 {
@@ -116,7 +106,6 @@ namespace PRL_Web.Controllers
             return View(paymentMethod);
         }
 
-        // GET: PaymentMethods/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -134,7 +123,6 @@ namespace PRL_Web.Controllers
             return View(paymentMethod);
         }
 
-        // POST: PaymentMethods/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)

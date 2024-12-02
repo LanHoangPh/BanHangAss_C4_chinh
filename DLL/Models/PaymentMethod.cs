@@ -12,10 +12,8 @@ namespace DLL.Models
         [Key]
         public Guid PaymentMethodId { get; set; }
 
-        [Required, MaxLength(50)]
         public string TenPhuongThuc { get; set; }
 
-        [MaxLength(255)]
         public string MoTa { get; set; }
         // Mối quan hệ  1 - n với PaymentHistories
         public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();

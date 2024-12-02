@@ -18,14 +18,37 @@ namespace PRL_Web.Controllers
             _context = context;
         }
 
-        // GET: OrderDetails
+        public async Task<IActionResult> IndexOrder()
+        {
+            var userName = HttpContext.Session.GetString("UserName");
+            if (userName == null)
+            {
+                TempData["Error"] = "Bạn cần đăng nhập để xem hóa đơn!";
+                return RedirectToAction("Login", "Users");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            if (user == null)
+            {
+                TempData["Error"] = "Không tìm thấy tài khoản của bạn!";
+                return RedirectToAction("Login", "Users");
+            }
+
+            var pendingOrders = await _context.Orders
+                .Include(o => o.OrderDetails) 
+                    .ThenInclude(od => od.Product) 
+                .Where(o => o.UserId == user.UserId && o.TrangThai == 1)
+                .ToListAsync();
+
+            return View(pendingOrders);
+        }
+
         public async Task<IActionResult> Index()
         {
             var banHangDbContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
             return View(await banHangDbContext.ToListAsync());
         }
 
-        // GET: OrderDetails/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -45,7 +68,6 @@ namespace PRL_Web.Controllers
             return View(orderDetail);
         }
 
-        // GET: OrderDetails/Create
         public IActionResult Create()
         {
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");

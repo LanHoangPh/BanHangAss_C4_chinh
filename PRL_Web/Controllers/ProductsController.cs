@@ -17,6 +17,7 @@ namespace PRL_Web.Controllers
             _context = context;
             _environment = environment;
         }
+
         [HttpPost]
         public async Task<IActionResult> AddToCart(Guid productid)
         {
@@ -27,7 +28,7 @@ namespace PRL_Web.Controllers
             }
             if (product.SoLuong <= 0)
             {
-                ViewData["ErrorMessage"] = "Sản phẩm này đã hết hàng.";
+                TempData["Messeger"] = "Sản phẩm này đã hết hàng.";
                 return RedirectToAction("IndexCus", "Products");
             }
 
@@ -46,7 +47,7 @@ namespace PRL_Web.Controllers
             }
 
             var cart = await _context.Carts
-                .FirstOrDefaultAsync(c => c.UserId == user.UserId); // Giỏ hàng của ngày hiện tại, bạn có thể thay đổi nếu cần
+                .FirstOrDefaultAsync(c => c.UserId == user.UserId); 
 
             if (cart == null)
             {
@@ -79,16 +80,13 @@ namespace PRL_Web.Controllers
             {
                 if (cartDetail.SoLuong + 1 > product.SoLuong)
                 {
-                    ViewData["ErrorMessage"] = "Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho.";
+                    TempData["Messeger"] = "Số lượng sản phẩm trong giỏ hàng vượt quá số lượng tồn kho.";
                     return RedirectToAction("Index", "Cart"); 
                 }
 
                 cartDetail.SoLuong += 1;
                 _context.CartDetails.Update(cartDetail);
             }
-
-            product.SoLuong -= 1;
-            _context.Products.Update(product);
             await _context.SaveChangesAsync();
             TempData["Messeger"] = $" Thêm sản phẩm{product.ProductId} vào giỏ hàng thàng công";
 
