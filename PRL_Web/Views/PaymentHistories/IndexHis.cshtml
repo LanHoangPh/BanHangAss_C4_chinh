@@ -17,7 +17,7 @@ else
     <div class="row">
         @foreach (var history in Model)
         {
-            <div class="col-md-6 mb-4">
+            <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <strong>Hóa đơn: @history.Order?.OrderId</strong>
@@ -30,6 +30,7 @@ else
                     </div>
                     <div class="card-footer text-end">
                         <span class="badge bg-success">Đã thanh toán</span>
+                        @* <a href="@Url.Action("Details", "PaymentHistory", new { id = history.PaymentId })" class="btn btn-info btn-sm ms-2">Chi tiết</a> *@
                     </div>
                 </div>
             </div>

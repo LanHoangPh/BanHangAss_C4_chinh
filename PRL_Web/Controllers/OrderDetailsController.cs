@@ -34,7 +34,7 @@ namespace PRL_Web.Controllers
             if (soTienThanhToan < order.TongTien)
             {
                 TempData["Error"] = "Số tiền thanh toán không đủ!";
-                return RedirectToAction("GoToCheckout", new { orderId });
+                return RedirectToAction("IndexOrder");
             }
 
             var paymentHistory = new PaymentHistory
@@ -82,6 +82,7 @@ namespace PRL_Web.Controllers
             }
 
             _context.OrderDetails.RemoveRange(order.OrderDetails);
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Hóa đơn đã được hoàn trả thành công!";

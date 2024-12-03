@@ -4,90 +4,102 @@
     ViewData["Title"] = "Danh sách hóa đơn";
 }
 
-<h1>Danh sách hóa đơn của bạn</h1>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-warning" role="alert">
-        Hiện không có hóa đơn nào đang chờ xử lý.
-    </div>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Mã hóa đơn</th>
-                <th>Ngày tạo</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Chi tiết</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Danh sách hóa đơn của bạn</h1>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Error"]
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center" role="alert">
+            Hiện không có hóa đơn nào đang chờ xử lý.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-primary text-center">
                 <tr>
-                    <td>@order.OrderId</td>
-                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@String.Format("{0:C}", order.TongTien)</td>
-                    <td>
-                        @{
-                            string trangThaiText = order.TrangThai switch
-                            {
-                                1 => "Đang xử lý",
-                                2 => "Hoàn thành",
-                                3 => "Đã hủy",
-                                _ => "Không xác định"
-                            };
-                        }
-                        @trangThaiText
-                    </td>
-                    <td>
-                        <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#details-@order.OrderId">
-                            Xem chi tiết
-                        </button>
-                    </td>
-                    <td>
-                        <form asp-controller="OrderDetails" asp-action="Refund" method="post" style="display:inline-block;">
-                            <input type="hidden" name="orderId" value="@order.OrderId" />
-                            <button type="submit" class="btn btn-warning btn-sm">Refund</button>
-                        </form>
-
-                        <form asp-controller="OrderDetails" asp-action="GoToCheckout" method="post" style="display:inline-block;">
-                            <input type="hidden" name="orderId" value="@order.OrderId" />
-                            <button type="submit" class="btn btn-success btn-sm">Go To Checkout</button>
-                        </form>
-                    </td>
+                    <th>Mã hóa đơn</th>
+                    <th>Ngày tạo</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
                 </tr>
-                <tr class="collapse" id="details-@order.OrderId">
-                    <td colspan="5">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Tên sản phẩm</th>
-                                    <th>Số lượng</th>
-                                    <th>Hình Ảnh</th>
-                                    <th>Giá sản phẩm</th>
-                                    <th>Thành tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var detail in order.OrderDetails)
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td class="text-center">@order.OrderId</td>
+                        <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-end">@String.Format("{0:C}", order.TongTien)</td>
+                        <td class="text-center">
+                            @{
+                                string trangThaiText = order.TrangThai switch
                                 {
+                                    1 => "<span class='badge bg-warning'>Đang xử lý</span>",
+                                    2 => "<span class='badge bg-success'>Hoàn thành</span>",
+                                    3 => "<span class='badge bg-danger'>Đã hủy</span>",
+                                    _ => "<span class='badge bg-secondary'>Không xác định</span>"
+                                };
+                            }
+                            @Html.Raw(trangThaiText)
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#details-@order.OrderId">
+                                Xem chi tiết
+                            </button>
+                            <form asp-controller="OrderDetails" asp-action="Refund" method="post" style="display:inline-block;">
+                                <input type="hidden" name="orderId" value="@order.OrderId" />
+                                <button type="submit" class="btn btn-warning btn-sm">Hoàn trả</button>
+                            </form>
+                            <form asp-controller="OrderDetails" asp-action="GoToCheckout" method="post" style="display:inline-block;">
+                                <input type="hidden" name="orderId" value="@order.OrderId" />
+                                <button type="submit" class="btn btn-success btn-sm">Đi tới thanh toán</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="details-@order.OrderId">
+                        <td colspan="5">
+                            <table class="table table-striped">
+                                <thead class="table-light">
                                     <tr>
-                                        <td>@detail.Product.TenSp</td>
-                                        <td>@detail.SoLuong</td>
-                                        <td><img src="@detail.Product.ImageUrl" alt="Image" style="width:100px;height:auto;" /></td>
-                                        <td>@String.Format("{0:C}", detail.GiaSanPham )</td>
-                                        <td>@String.Format("{0:C}", detail.SoLuong * detail.GiaSanPham)</td>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Số lượng</th>
+                                        <th>Hình ảnh</th>
+                                        <th>Giá sản phẩm</th>
+                                        <th>Thành tiền</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                                </thead>
+                                <tbody>
+                                    @foreach (var detail in order.OrderDetails)
+                                    {
+                                        <tr>
+                                            <td>@detail.Product.TenSp</td>
+                                            <td class="text-center">@detail.SoLuong</td>
+                                            <td class="text-center">
+                                                <img src="@detail.Product.ImageUrl" alt="Image" class="img-thumbnail" style="width:100px;height:auto;" />
+                                            </td>
+                                            <td class="text-end">@String.Format("{0:C}", detail.GiaSanPham)</td>
+                                            <td class="text-end">@String.Format("{0:C}", detail.SoLuong * detail.GiaSanPham)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

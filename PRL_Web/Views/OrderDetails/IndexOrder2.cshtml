@@ -3,55 +3,64 @@
 @{
     ViewData["Title"] = "Hóa đơn đã xử lý";
 }
+<div class="container mt-5">
+    <h1 class="text-center my-4">Hóa đơn đã thanh toán</h1>
 
-<h1 class="text-center">Hóa đơn đã thanh toán</h1>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info text-center">
-        Hiện tại, bạn chưa có hóa đơn nào đã được xử lý.
-    </div>
-}
-else
-{
-    @foreach (var order in Model)
+    @if (!Model.Any())
     {
-        <div class="card mb-4 shadow">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title">Hóa đơn: @order.OrderId</h5>
-                <p class="mb-0">Ngày thanh toán: @order.PaymentHistory.ThoiGianTT.ToString("dd/MM/yyyy HH:mm")</p>
-            </div>
-            <div class="card-body">
-                <p><strong>Người mua:</strong> @order.User?.Username</p>
-                <p><strong>Tổng tiền:</strong> @order.TongTien.ToString("C")</p>
-                <p><strong>Phương thức thanh toán:</strong> @order.PaymentHistory?.PaymentMethod?.TenPhuongThuc</p>
-
-                <h6>Chi tiết sản phẩm:</h6>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Tên sản phẩm</th>
-                            <th>Số lượng</th>
-                            <th>Giá sản phẩm</th>
-                            <th>Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var detail in order.OrderDetails)
-                        {
-                            <tr>
-                                <td>@detail.Product?.TenSp</td>
-                                <td>@detail.SoLuong</td>
-                                <td>@String.Format("{0:C}", detail.GiaSanPham)</td>
-                                <td>@String.Format("{0:C}", detail.SoLuong * detail.GiaSanPham)</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer text-end">
-                <span class="badge bg-success">Trạng thái: Đã thanh toán</span>
-            </div>
+        <div class="alert alert-info text-center">
+            Hiện tại, bạn chưa có hóa đơn nào đã được xử lý.
         </div>
     }
-}
+    else
+    {
+        @foreach (var order in Model)
+        {
+            <div class="card mb-4 shadow-lg">
+                <div class="card-header bg-success text-white d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title mb-0">Hóa đơn: <strong>@order.OrderId</strong></h5>
+                        <small>Ngày thanh toán: @order.PaymentHistory.ThoiGianTT.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    <span class="badge bg-success align-self-center">Đã thanh toán</span>
+                </div>
+
+                <div class="card-body">
+                    <p><strong>Người mua:</strong> @order.User?.Username</p>
+                    <p><strong>Tổng tiền:</strong> @order.TongTien.ToString("C")</p>
+                    <p><strong>Phương thức thanh toán:</strong> @order.PaymentHistory?.PaymentMethod?.TenPhuongThuc</p>
+
+                    <h6 class="mt-4">Chi tiết sản phẩm:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên sản phẩm</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Giá sản phẩm</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detail in order.OrderDetails)
+                                {
+                                    <tr>
+                                        <td>@detail.Product?.TenSp</td>
+                                        <td class="text-center">@detail.SoLuong</td>
+                                        <td class="text-end">@String.Format("{0:C}", detail.GiaSanPham)</td>
+                                        <td class="text-end">@String.Format("{0:C}", detail.SoLuong * detail.GiaSanPham)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer text-end">
+                    <small class="text-muted">Mã hóa đơn: @order.OrderId</small>
+                </div>
+            </div>
+        }
+    }
+</div>
+

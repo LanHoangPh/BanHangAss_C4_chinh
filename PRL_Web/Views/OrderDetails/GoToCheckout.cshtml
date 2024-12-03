@@ -4,33 +4,41 @@
     ViewData["Title"] = "Thanh toán hóa đơn";
 }
 
-<h1>Thanh toán hóa đơn</h1>
+<h1 class="text-center mb-4">Thanh toán hóa đơn</h1>
 
-<div class="card">
+<div class="card mb-4 shadow-sm">
     <div class="card-body">
-        <h5 class="card-title">Hóa đơn: @Model.Order.OrderId</h5>
+        <h5 class="card-title">Hóa đơn: <strong>@Model.Order.OrderId</strong></h5>
         <p>Ngày tạo: @Model.Order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
-        <p>Tổng tiền: @String.Format("{0:C}", Model.Order.TongTien)</p>
+        <p>Tổng tiền: <span class="text-success">@String.Format("{0:C}", Model.Order.TongTien)</span></p>
     </div>
 </div>
 
 <hr />
 
-<form asp-controller="OrderDetails" asp-action="Checkout" method="post">
+<form asp-controller="OrderDetails" asp-action="Checkout" method="post" class="needs-validation" novalidate>
     <input type="hidden" name="orderId" value="@Model.Order.OrderId" />
+
     <div class="mb-3">
         <label for="paymentMethod" class="form-label">Phương thức thanh toán:</label>
-        <select id="paymentMethod" name="paymentMethodId" class="form-select">
+        <select id="paymentMethod" name="paymentMethodId" class="form-select" required>
+            <option value="" disabled selected>Chọn phương thức thanh toán</option>
             @foreach (var method in Model.PaymentMethods)
             {
-                    <option value="@method.PaymentMethodId">@method.TenPhuongThuc</option>
+                <option value="@method.PaymentMethodId">@method.TenPhuongThuc</option>
             }
         </select>
+        <div class="invalid-feedback">Vui lòng chọn phương thức thanh toán.</div>
     </div>
+
     <div class="mb-3">
         <label for="soTienThanhToan" class="form-label">Số tiền thanh toán:</label>
-        <input type="number" id="soTienThanhToan" name="soTienThanhToan" class="form-control" required />
+        <input type="number" id="soTienThanhToan" name="soTienThanhToan" class="form-control" min="1" max="@Model.Order.TongTien" required />
+        <div class="invalid-feedback">Số tiền thanh toán phải nằm trong giới hạn hợp lệ.</div>
     </div>
-    <button type="submit" class="btn btn-success">Thanh toán</button>
+
+    <div class="d-flex justify-content-between">
+        <a asp-controller="OrderDetails" asp-action="IndexOrder" class="btn btn-secondary">Quay lại</a>
+        <button type="submit" class="btn btn-success">Thanh toán</button>
+    </div>
 </form>
-<a asp-controller="OrdersDetails" asp-action="IndexOrder"></a>
