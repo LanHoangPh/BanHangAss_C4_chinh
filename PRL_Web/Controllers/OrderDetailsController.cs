@@ -37,7 +37,6 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("GoToCheckout", new { orderId });
             }
 
-            // Tạo lịch sử thanh toán
             var paymentHistory = new PaymentHistory
             {
                 PaymentId = Guid.NewGuid(),
@@ -46,6 +45,7 @@ namespace PRL_Web.Controllers
                 TongTien = soTienThanhToan,
                 ThoiGianTT = DateTime.Now,
                 Status = 1,
+                GhiChu = $"Số tiền khách đưa {soTienThanhToan}$ - Số Tiền Phải Thối {soTienThanhToan - order.TongTien}$"
             };
 
             order.TrangThai = 2; 
@@ -137,6 +137,29 @@ namespace PRL_Web.Controllers
             return View(pendingOrders);
         }
 
+        public async Task<IActionResult> IndexOrder2()
+        {
+            var userName = HttpContext.Session.GetString("UserName");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            if (user == null)
+            {
+                TempData["Error"] = "Không tìm thấy người dùng. Vui lòng thử lại.";
+                return RedirectToAction("Login", "Users");
+            }
+
+            var processedOrders = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .Include(o => o.PaymentHistory)
+                .ThenInclude(o => o.PaymentMethod)
+                .Where(o => o.UserId == user.UserId && o.TrangThai == 2)
+                .OrderByDescending(ph => ph.OrderDate)
+                .ToListAsync();
+
+            return View(processedOrders);
+        }
+
         public async Task<IActionResult> Index()
         {
             var banHangDbContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
@@ -162,33 +185,6 @@ namespace PRL_Web.Controllers
             return View(orderDetail);
         }
 
-        public IActionResult Create()
-        {
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ImageUrl");
-            return View();
-        }
-
-        // POST: OrderDetails/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderDetailId,OrderId,ProductId,SoLuong,GiaSanPham")] OrderDetail orderDetail)
-        {
-            if (ModelState.IsValid)
-            {
-                orderDetail.OrderDetailId = Guid.NewGuid();
-                _context.Add(orderDetail);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ImageUrl", orderDetail.ProductId);
-            return View(orderDetail);
-        }
-
-        // GET: OrderDetails/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -206,12 +202,8 @@ namespace PRL_Web.Controllers
             return View(orderDetail);
         }
 
-        // POST: OrderDetails/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("OrderDetailId,OrderId,ProductId,SoLuong,GiaSanPham")] OrderDetail orderDetail)
+        public async Task<IActionResult> Edit(Guid id, OrderDetail orderDetail)
         {
             if (id != orderDetail.OrderDetailId)
             {
@@ -243,7 +235,6 @@ namespace PRL_Web.Controllers
             return View(orderDetail);
         }
 
-        // GET: OrderDetails/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -263,9 +254,7 @@ namespace PRL_Web.Controllers
             return View(orderDetail);
         }
 
-        // POST: OrderDetails/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var orderDetail = await _context.OrderDetails.FindAsync(id);

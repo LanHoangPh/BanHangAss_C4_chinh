@@ -51,19 +51,22 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        <!-- Hóa Đơn -->
+                        <!-- Lịch Sử -->
                         <li class="nav-item">
-                            <a class="nav-link position-relative" asp-controller="OrderDetails" asp-action="Index">
+                            <a class="nav-link position-relative" asp-controller="PaymentHistories" asp-action="IndexHis">
                                 <i class="fas fa-history"></i>
                                 PaymentHistories
                             </a>
                         </li>
                         <!-- Hóa Đơn -->
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" asp-controller="OrderDetails" asp-action="IndexOrder">
-                                <i class="fas fa-file-invoice"></i>
-                                Order
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-file-invoice"></i> Order
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-controller="OrderDetails" asp-action="IndexOrder">Chưa Xử Lý</a></li>
+                                <li><a class="dropdown-item" asp-controller="OrderDetails" asp-action="IndexOrder2">Đã Thanh Toán</a></li>
+                            </ul>
                         </li>
                         <!-- Giỏ hàng -->
                         <li class="nav-item">

@@ -27,5 +27,7 @@ namespace DLL.Models
         public DateTime ThoiGianTT { get; set; } = DateTime.Now;
 
         public int Status { get; set; } // 1 = Success, 2 = Failed, 3 = Pending
+
+        public string GhiChu { get; set; } // Ghi rõ số tiền khách đưa số tiền phải trả {số tiền khách đưa - số tổng tiền }
     }
 }

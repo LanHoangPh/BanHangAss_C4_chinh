@@ -19,20 +19,20 @@ namespace PRL_Web.Controllers
         }
         // Xử lý Dữ kiện khi ấn mua hàng
         [HttpPost]
-        public async Task<IActionResult> BuyToCart(Guid cartDetailId)
+        public IActionResult BuyToCart(Guid cartDetailId)
         {
             var userName = HttpContext.Session.GetString("UserName");
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user =  _context.Users.FirstOrDefault(u => u.Username == userName);
             if (user == null)
             {
                 TempData["Error"] = "Không tìm thấy tài khoản của bạn.";
                 return RedirectToAction("Login", "Users");
             }
 
-            var cartDetail = await _context.CartDetails
+            var cartDetail =  _context.CartDetails
                 .Include(cd => cd.Product)
-                .FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
+                .FirstOrDefault(cd => cd.CartDetailId == cartDetailId);
 
             if (cartDetail == null || cartDetail.Product == null)
             {
@@ -46,9 +46,9 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("IndexCart");
             }
 
-            var existingOrder = await _context.Orders
+            var existingOrder =  _context.Orders
                 .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.UserId == user.UserId && o.TrangThai == 1);
+                .FirstOrDefault(o => o.UserId == user.UserId && o.TrangThai == 1);
 
             if (existingOrder == null)
             {
@@ -58,11 +58,11 @@ namespace PRL_Web.Controllers
                     OrderId = Guid.NewGuid(),
                     UserId = user.UserId,
                     OrderDate = DateTime.Now,
-                    TrangThai = 1, // Pending
+                    TrangThai = 1, 
                     TongTien = 0
                 };
                 _context.Orders.Add(existingOrder);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
             var existingOrderDetail = existingOrder.OrderDetails
@@ -86,22 +86,19 @@ namespace PRL_Web.Controllers
                 _context.OrderDetails.Update(existingOrderDetail);
             }
 
-            // Cập nhật tồn kho sản phẩm
             cartDetail.Product.SoLuong -= cartDetail.SoLuong;
             _context.Products.Update(cartDetail.Product);
 
-            // Cập nhật tổng tiền của Order
             existingOrder.TongTien += cartDetail.SoLuong * cartDetail.Product.Gia;
             _context.Orders.Update(existingOrder);
 
-            // Xóa sản phẩm khỏi giỏ hàng
             _context.CartDetails.Remove(cartDetail);
 
-            await _context.SaveChangesAsync();
-            await UpdateCartBadge();
+            _context.SaveChanges();
+            UpdateCartBadge();
 
             TempData["Success"] = "Mua sản phẩm thành công!";
-            return RedirectToAction("IndexCart");
+            return RedirectToAction("IndexOrder","OrderDetails");
         }
 
 
@@ -204,11 +201,10 @@ namespace PRL_Web.Controllers
 
         public async Task<IActionResult> UpdateCartBadge()
         {
-            // Lấy thông tin người dùng hiện tại từ Session
             var userName = HttpContext.Session.GetString("UserName");
             if (userName == null)
             {
-                TempData["CartItemCount"] = 0; // Nếu người dùng chưa đăng nhập
+                TempData["CartItemCount"] = 0;
                 return RedirectToAction("IndexCus", "Products");
             }
 
@@ -219,17 +215,15 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("IndexCus", "Products");
             }
 
-            // Lấy giỏ hàng của người dùng
             var cart = await _context.Carts
                 .FirstOrDefaultAsync(c => c.UserId == user.UserId);
 
             if (cart == null)
             {
-                TempData["CartItemCount"] = 0; // Nếu giỏ hàng rỗng
+                TempData["CartItemCount"] = 0; 
             }
             else
             {
-                // Đếm số lượng sản phẩm trong CartDetails
                 int itemCount = await _context.CartDetails
                     .Where(cd => cd.CartId == cart.CartId)
                     .SumAsync(cd => cd.SoLuong);
@@ -273,7 +267,6 @@ namespace PRL_Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CartDetailId,CartId,ProductId,SoLuong")] CartDetail cartDetail)
         {
             if (ModelState.IsValid)
@@ -358,7 +351,6 @@ namespace PRL_Web.Controllers
             return View(cartDetail);
         }
 
-        // POST: CartDetails/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)

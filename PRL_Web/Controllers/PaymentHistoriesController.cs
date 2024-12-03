@@ -18,14 +18,43 @@ namespace PRL_Web.Controllers
             _context = context;
         }
 
-        // GET: PaymentHistories
+        [HttpGet]
+        public async Task<IActionResult> IndexHis()
+        {
+            var userName = HttpContext.Session.GetString("UserName");
+            if (string.IsNullOrEmpty(userName))
+            {
+                TempData["Error"] = "Bạn cần đăng nhập để xem lịch sử thanh toán.";
+                return RedirectToAction("Login", "Users");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            if (user == null)
+            {
+                TempData["Error"] = "Không tìm thấy thông tin người dùng.";
+                return RedirectToAction("Login", "Users");
+            }
+
+            // Lấy danh sách lịch sử thanh toán của người dùng
+            var paymentHistories = await _context.PaymentHistories
+                .Include(ph => ph.Order)
+                .Include(ph => ph.PaymentMethod)
+                .Where(ph => ph.Order != null && ph.Order.UserId == user.UserId && ph.Status == 1) // Lọc trạng thái Success
+                .OrderByDescending(ph => ph.ThoiGianTT) // Sắp xếp mới nhất trước
+                .ToListAsync();
+
+            return View(paymentHistories);
+        }
+
+
+
+
         public async Task<IActionResult> Index()
         {
             var banHangDbContext = _context.PaymentHistories.Include(p => p.Order).Include(p => p.PaymentMethod);
             return View(await banHangDbContext.ToListAsync());
         }
 
-        // GET: PaymentHistories/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)

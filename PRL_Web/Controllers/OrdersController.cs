@@ -18,24 +18,22 @@ namespace PRL_Web.Controllers
             _context = context;
         }
 
-        // GET: Orders
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var banHangDbContext = _context.Orders.Include(o => o.User);
-            return View(await banHangDbContext.ToListAsync());
+            return View( banHangDbContext.ToList());
         }
 
-        // GET: Orders/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public IActionResult Details(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var order = await _context.Orders
+            var order =  _context.Orders
                 .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.OrderId == id);
+                .FirstOrDefault(m => m.OrderId == id);
             if (order == null)
             {
                 return NotFound();
@@ -44,40 +42,14 @@ namespace PRL_Web.Controllers
             return View(order);
         }
 
-        // GET: Orders/Create
-        public IActionResult Create()
-        {
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email");
-            return View();
-        }
-
-        // POST: Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,OrderDate,TongTien,TrangThai")] Order order)
-        {
-            if (ModelState.IsValid)
-            {
-                order.OrderId = Guid.NewGuid();
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Email", order.UserId);
-            return View(order);
-        }
-
-        // GET: Orders/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        public IActionResult Edit(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var order = await _context.Orders.FindAsync(id);
+            var order = _context.Orders.Find(id);
             if (order == null)
             {
                 return NotFound();
@@ -86,12 +58,8 @@ namespace PRL_Web.Controllers
             return View(order);
         }
 
-        // POST: Orders/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("OrderId,UserId,OrderDate,TongTien,TrangThai")] Order order)
+        public IActionResult Edit(Guid id, Order order)
         {
             if (id != order.OrderId)
             {
@@ -103,7 +71,7 @@ namespace PRL_Web.Controllers
                 try
                 {
                     _context.Update(order);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -122,17 +90,16 @@ namespace PRL_Web.Controllers
             return View(order);
         }
 
-        // GET: Orders/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        public IActionResult Delete(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.OrderId == id);
+                .FirstOrDefault(m => m.OrderId == id);
             if (order == null)
             {
                 return NotFound();
@@ -141,18 +108,16 @@ namespace PRL_Web.Controllers
             return View(order);
         }
 
-        // POST: Orders/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public IActionResult DeleteConfirmed(Guid id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = _context.Orders.Find(id);
             if (order != null)
             {
                 _context.Orders.Remove(order);
             }
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 

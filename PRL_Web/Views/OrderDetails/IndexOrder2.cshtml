@@ -1,0 +1,57 @@
+﻿@model IEnumerable<DLL.Models.Order>
+
+@{
+    ViewData["Title"] = "Hóa đơn đã xử lý";
+}
+
+<h1 class="text-center">Hóa đơn đã thanh toán</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">
+        Hiện tại, bạn chưa có hóa đơn nào đã được xử lý.
+    </div>
+}
+else
+{
+    @foreach (var order in Model)
+    {
+        <div class="card mb-4 shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title">Hóa đơn: @order.OrderId</h5>
+                <p class="mb-0">Ngày thanh toán: @order.PaymentHistory.ThoiGianTT.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            <div class="card-body">
+                <p><strong>Người mua:</strong> @order.User?.Username</p>
+                <p><strong>Tổng tiền:</strong> @order.TongTien.ToString("C")</p>
+                <p><strong>Phương thức thanh toán:</strong> @order.PaymentHistory?.PaymentMethod?.TenPhuongThuc</p>
+
+                <h6>Chi tiết sản phẩm:</h6>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Giá sản phẩm</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detail in order.OrderDetails)
+                        {
+                            <tr>
+                                <td>@detail.Product?.TenSp</td>
+                                <td>@detail.SoLuong</td>
+                                <td>@String.Format("{0:C}", detail.GiaSanPham)</td>
+                                <td>@String.Format("{0:C}", detail.SoLuong * detail.GiaSanPham)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer text-end">
+                <span class="badge bg-success">Trạng thái: Đã thanh toán</span>
+            </div>
+        </div>
+    }
+}

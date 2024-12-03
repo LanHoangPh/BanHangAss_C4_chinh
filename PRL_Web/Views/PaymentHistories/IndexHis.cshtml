@@ -1,0 +1,38 @@
+﻿@model IEnumerable<DLL.Models.PaymentHistory>
+
+@{
+    ViewData["Title"] = "Lịch sử thanh toán";
+}
+
+<h1 class="text-center my-4">Lịch sử thanh toán</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">
+        Hiện tại bạn chưa có lịch sử thanh toán.
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var history in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <strong>Hóa đơn: @history.Order?.OrderId</strong>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Ngày thanh toán:</strong> @history.ThoiGianTT.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Tổng tiền:</strong> @String.Format("{0:C}", history.TongTien)</p>
+                        <p><strong>Phương thức thanh toán:</strong> @history.PaymentMethod?.TenPhuongThuc</p>
+                        <p><strong>Ghi chú:</strong> @history.GhiChu</p>
+                    </div>
+                    <div class="card-footer text-end">
+                        <span class="badge bg-success">Đã thanh toán</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
