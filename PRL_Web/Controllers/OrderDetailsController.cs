@@ -20,10 +20,10 @@ namespace PRL_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Checkout(Guid orderId, Guid paymentMethodId, decimal soTienThanhToan)
+        public IActionResult Checkout(Guid orderId, Guid paymentMethodId, decimal soTienThanhToan)
         {
-            var order = await _context.Orders
-                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+            var order = _context.Orders
+                .FirstOrDefault(o => o.OrderId == orderId);
 
             if (order == null || order.TrangThai != 1)
             {
@@ -52,18 +52,18 @@ namespace PRL_Web.Controllers
             _context.PaymentHistories.Add(paymentHistory);
             _context.Orders.Update(order);
 
-            await _context.SaveChangesAsync();
+            _context.SaveChangesAsync();
 
             TempData["Success"] = "Thanh toán thành công!";
             return RedirectToAction("IndexOrder");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Refund(Guid orderId)
+        public IActionResult Refund(Guid orderId)
         {
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+                .FirstOrDefault(o => o.OrderId == orderId);
 
             if (order == null || order.TrangThai != 1)
             {
@@ -73,7 +73,7 @@ namespace PRL_Web.Controllers
 
             foreach (var detail in order.OrderDetails)
             {
-                var product = await _context.Products.FindAsync(detail.ProductId);
+                var product = _context.Products.Find(detail.ProductId);
                 if (product != null)
                 {
                     product.SoLuong += detail.SoLuong;
@@ -83,18 +83,18 @@ namespace PRL_Web.Controllers
 
             _context.OrderDetails.RemoveRange(order.OrderDetails);
             _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             TempData["Success"] = "Hóa đơn đã được hoàn trả thành công!";
             return RedirectToAction("IndexOrder");
         }
 
         [HttpPost]
-        public async Task<IActionResult> GoToCheckout(Guid orderId)
+        public IActionResult GoToCheckout(Guid orderId)
         {
-            var order = await _context.Orders
+            var order = _context.Orders
                 .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+                .FirstOrDefault(o => o.OrderId == orderId);
 
             if (order == null || order.TrangThai != 1)
             {
@@ -102,7 +102,7 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("IndexOrder");
             }
 
-            var paymentMethods = await _context.PaymentMethods.ToListAsync();
+            var paymentMethods = _context.PaymentMethods.ToList();
 
             var viewModel = new CheckoutViewModel
             {
@@ -113,7 +113,7 @@ namespace PRL_Web.Controllers
             return View(viewModel);
         }
 
-        public async Task<IActionResult> IndexOrder()
+        public IActionResult IndexOrder()
         {
             var userName = HttpContext.Session.GetString("UserName");
             if (userName == null)
@@ -122,18 +122,18 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("Login", "Users");
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = _context.Users.FirstOrDefault(u => u.Username == userName);
             if (user == null)
             {
                 TempData["Error"] = "Không tìm thấy tài khoản của bạn!";
                 return RedirectToAction("Login", "Users");
             }
 
-            var pendingOrders = await _context.Orders
+            var pendingOrders = _context.Orders
                 .Include(o => o.OrderDetails) 
                     .ThenInclude(od => od.Product) 
                 .Where(o => o.UserId == user.UserId && o.TrangThai == 1)
-                .ToListAsync();
+                .ToList();
 
             return View(pendingOrders);
         }
@@ -142,21 +142,21 @@ namespace PRL_Web.Controllers
         {
             var userName = HttpContext.Session.GetString("UserName");
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = _context.Users.FirstOrDefault(u => u.Username == userName);
             if (user == null)
             {
                 TempData["Error"] = "Không tìm thấy người dùng. Vui lòng thử lại.";
                 return RedirectToAction("Login", "Users");
             }
 
-            var processedOrders = await _context.Orders
+            var processedOrders = _context.Orders
                 .Include(o => o.OrderDetails)
                 .ThenInclude(od => od.Product)
                 .Include(o => o.PaymentHistory)
                 .ThenInclude(o => o.PaymentMethod)
-                .Where(o => o.UserId == user.UserId && o.TrangThai == 2)
+                .Where(o => o.UserId == user.UserId && o.TrangThai == 2) // Lấy ra các hóa đơn đã thanh toán Trạng Thái = 2
                 .OrderByDescending(ph => ph.OrderDate)
-                .ToListAsync();
+                .ToList();
 
             return View(processedOrders);
         }

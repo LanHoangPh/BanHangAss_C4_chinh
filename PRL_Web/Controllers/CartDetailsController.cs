@@ -52,7 +52,6 @@ namespace PRL_Web.Controllers
 
             if (existingOrder == null)
             {
-                // Nếu chưa có Order, tạo Order mới
                 existingOrder = new Order
                 {
                     OrderId = Guid.NewGuid(),
@@ -101,9 +100,8 @@ namespace PRL_Web.Controllers
             return RedirectToAction("IndexOrder","OrderDetails");
         }
 
-
-
-        public async Task<IActionResult> IndexCart()
+        // hiện danh sách các hoaas đon dang xử lý
+        public IActionResult IndexCart()
         {
             var userName = HttpContext.Session.GetString("UserName");
             if (string.IsNullOrEmpty(userName))
@@ -112,17 +110,17 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("Login", "Users");
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = _context.Users.FirstOrDefault(u => u.Username == userName);
             if (user == null)
             {
                 TempData["ErroPro"] = "Không tìm thấy thông tin người dùng.";
                 return RedirectToAction("DangKy", "Users");
             }
 
-            var cart = await _context.Carts
+            var cart = _context.Carts
                 .Include(c => c.CartDetails)
                     .ThenInclude(cd => cd.Product) 
-                .FirstOrDefaultAsync(c => c.UserId == user.UserId);
+                .FirstOrDefault(c => c.UserId == user.UserId);
 
             if (cart == null || cart.CartDetails.Count == 0)
             {
@@ -134,11 +132,11 @@ namespace PRL_Web.Controllers
         }
         // cập nhật số lượng trong giỏ hàng
         [HttpPost]
-        public async Task<IActionResult> UpdateQuantity(Guid cartDetailId, string action)
+        public IActionResult UpdateQuantity(Guid cartDetailId, string action)
         {
-            var cartDetail = await _context.CartDetails
+            var cartDetail = _context.CartDetails
                 .Include(cd => cd.Product)
-                .FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
+                .FirstOrDefault(cd => cd.CartDetailId == cartDetailId);
 
             if (cartDetail == null)
             {
@@ -173,16 +171,16 @@ namespace PRL_Web.Controllers
                 }
             }
 
-            await _context.SaveChangesAsync();
-            await UpdateCartBadge();
+            _context.SaveChanges();
+            UpdateCartBadge();
             return RedirectToAction("IndexCart");
         }
-        // Xóa sản phẩm khỏi giỏ hàng
+        // xóa sản phẩm khỏi giỏ hàng
         [HttpPost]
-        public async Task<IActionResult> DeleteItem(Guid cartDetailId)
+        public IActionResult DeleteItem(Guid cartDetailId)
         {
-            var cartDetail = await _context.CartDetails
-                .FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
+            var cartDetail = _context.CartDetails
+                .FirstOrDefault(cd => cd.CartDetailId == cartDetailId);
 
             if (cartDetail == null)
             {
@@ -191,15 +189,15 @@ namespace PRL_Web.Controllers
             }
 
             _context.CartDetails.Remove(cartDetail);
-            await _context.SaveChangesAsync();
-            await UpdateCartBadge();
+            _context.SaveChanges();
+            UpdateCartBadge();
 
             TempData["Messeger"] = "Đã xóa sản phẩm khỏi giỏ hàng.";
             return RedirectToAction("IndexCart");
 
         }
-
-        public async Task<IActionResult> UpdateCartBadge()
+        // cập nhật số lượng giỏ hàng
+        public IActionResult UpdateCartBadge()
         {
             var userName = HttpContext.Session.GetString("UserName");
             if (userName == null)
@@ -208,15 +206,15 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("IndexCus", "Products");
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = _context.Users.FirstOrDefault(u => u.Username == userName);
             if (user == null)
             {
                 TempData["CartItemCount"] = 0; 
                 return RedirectToAction("IndexCus", "Products");
             }
 
-            var cart = await _context.Carts
-                .FirstOrDefaultAsync(c => c.UserId == user.UserId);
+            var cart = _context.Carts
+                .FirstOrDefault(c => c.UserId == user.UserId);
 
             if (cart == null)
             {
@@ -224,9 +222,9 @@ namespace PRL_Web.Controllers
             }
             else
             {
-                int itemCount = await _context.CartDetails
+                int itemCount = _context.CartDetails
                     .Where(cd => cd.CartId == cart.CartId)
-                    .SumAsync(cd => cd.SoLuong);
+                    .Sum(cd => cd.SoLuong);
 
                 TempData["CartItemCount"] = itemCount;
             }
@@ -234,10 +232,10 @@ namespace PRL_Web.Controllers
             return RedirectToAction("IndexCus", "Products");
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var banHangDbContext = _context.CartDetails.Include(c => c.Cart).Include(c => c.Product);
-            return View(await banHangDbContext.ToListAsync());
+            return View( banHangDbContext.ToList());
         }
 
         public async Task<IActionResult> Details(Guid? id)

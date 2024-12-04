@@ -38,10 +38,8 @@ namespace PRL_Web.Controllers
             else
             {
                 var token = Guid.NewGuid().ToString();
-
-                // Lưu token vào database (bạn cần thêm cột "ResetToken" và "ResetTokenExpiry" trong bảng User)
                 user.ResetToken = token;
-                user.ResetTokenExpiry = DateTime.Now.AddHours(1); // Token hết hạn sau 1 giờ
+                user.ResetTokenExpiry = DateTime.Now.AddHours(1); 
                 _context.SaveChanges();
 
                 ViewData["successMessage"] = "Email đặt lại mật khẩu đã được gửi!";
@@ -59,7 +57,6 @@ namespace PRL_Web.Controllers
                 return RedirectToAction(nameof(ForgotPassword));
             }
 
-            // Truyền token qua View để xử lý tiếp
             ViewBag.Token = token;
             return View();
         }
@@ -80,14 +77,13 @@ namespace PRL_Web.Controllers
                 return RedirectToAction(nameof(ForgotPassword));
             }
 
-            // Cập nhật mật khẩu mới
-            user.Password =newPassword; // Hash mật khẩu trước khi lưu
-            user.ResetToken = null; // Xóa token sau khi dùng
+            user.Password =newPassword; 
+            user.ResetToken = null; 
             user.ResetTokenExpiry = null;
             _context.SaveChanges();
 
             ViewData["successMessage"] = "Mật khẩu đã được thay đổi thành công!";
-            return RedirectToAction("Login"); // Chuyển hướng đến trang đăng nhập
+            return RedirectToAction("Login"); 
         }
 
         public IActionResult LogOut()
@@ -123,15 +119,8 @@ namespace PRL_Web.Controllers
             }
         }
 
-
-
-
-        public IActionResult Login() 
-        {
-            return View();
-        }
-
-
+        public IActionResult Login() => View();
+       
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
@@ -142,7 +131,6 @@ namespace PRL_Web.Controllers
             }
             else
             {
-                // Lưu thông tin vào session
                 HttpContext.Session.SetString("UserName", user.Username);
                 HttpContext.Session.SetInt32("UserRole", user.Role);
 
@@ -161,12 +149,9 @@ namespace PRL_Web.Controllers
             return View();
         }
 
-
-
-        // GET: Users
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Users.ToListAsync());
+            return View( _context.Users.ToList());
         }
 
         // GET: Users/Details/5

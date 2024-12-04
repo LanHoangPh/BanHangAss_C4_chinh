@@ -19,9 +19,9 @@ namespace PRL_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddToCart(Guid productid)
+        public IActionResult AddToCart(Guid productid)
         {
-            var product = await _context.Products.FindAsync(productid);
+            var product = _context.Products.Find(productid);
             if (product == null)
             {
                 return NotFound();
@@ -39,15 +39,15 @@ namespace PRL_Web.Controllers
                 return RedirectToAction("Login", "Users"); 
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = _context.Users.FirstOrDefault(u => u.Username == userName);
             if (user == null)
             {
                 TempData["ErroPro"] = "Không Tìm Thấy Bạn bạn cần đăng Ký cho tôi";
                 return RedirectToAction("DangKy", "User"); 
             }
 
-            var cart = await _context.Carts
-                .FirstOrDefaultAsync(c => c.UserId == user.UserId); 
+            var cart = _context.Carts
+                .FirstOrDefault(c => c.UserId == user.UserId); 
 
             if (cart == null)
             {
@@ -59,11 +59,11 @@ namespace PRL_Web.Controllers
                     NgayTao = DateTime.Now,
                 };
                 _context.Carts.Add(cart);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
 
-            var cartDetail = await _context.CartDetails
-                .FirstOrDefaultAsync(cd => cd.CartId == cart.CartId && cd.ProductId == productid);
+            var cartDetail = _context.CartDetails
+                .FirstOrDefault(cd => cd.CartId == cart.CartId && cd.ProductId == productid);
 
             if (cartDetail == null)
             {
@@ -87,7 +87,7 @@ namespace PRL_Web.Controllers
                 cartDetail.SoLuong += 1;
                 _context.CartDetails.Update(cartDetail);
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             TempData["Messeger"] = $" Thêm sản phẩm{product.ProductId} vào giỏ hàng thàng công";
 
             return RedirectToAction("IndexCus");
@@ -103,7 +103,7 @@ namespace PRL_Web.Controllers
             else pageNumber = (int)page;
             var products = _context.Products
                 .Where(x => x.TrangThai == 1)
-                .OrderBy(x => x.ProductId) 
+                .OrderBy(x => x.TenSp) 
                 .ToPagedList(pageNumber, pageSize);
             return View(products);
 
@@ -145,8 +145,6 @@ namespace PRL_Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-
         public IActionResult Create(Product product, IFormFile uploadedImage)
         {
             if (!ModelState.IsValid)
@@ -188,7 +186,6 @@ namespace PRL_Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit(Guid id, Product product, IFormFile uploadedImage)
         {
             if (id != product.ProductId)
